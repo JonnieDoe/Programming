@@ -1,9 +1,11 @@
-import socket
-import threading
-import ipaddress
+#!/usr/bin/python -tt
 
 __author__ = "DC"
 
+
+import socket
+import threading
+import ipaddress
 
 # Banner function
 def banner():
