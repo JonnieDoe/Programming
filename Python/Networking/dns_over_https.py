@@ -2,7 +2,8 @@
 
 __author__ = "DC"
 """
-    DNS over HTTPS
+    DNS over HTTPS. It uses Google Public DNS servers.
+    For more info please see: https://developers.google.com/speed/public-dns/docs/dns-over-https
 """
 
 import sys
@@ -24,7 +25,7 @@ class colors:
 def banner():
     title = "DNS over HTTPS"
     version = "Version 1.0"
-    contact = "David-Cristian"
+    contact = "DC"
     print("-" * 45)
     print(title.center(45))
     print(version.center(45))
