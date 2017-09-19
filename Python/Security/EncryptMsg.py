@@ -30,6 +30,8 @@ except Exception as error:
     exit()
 
 
+#################################################################################################
+# Colors class
 class Colors(object):
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
