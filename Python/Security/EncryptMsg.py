@@ -1,14 +1,26 @@
-#!/usr/bin/python -tt
+# !/usr/bin/python -tt
+"""
+    This script encrypts/decrypts the supplied message
+
+    Requirements:
+        pycrypto
+
+        For Windows, when you install pycrypto you must rename the crypto folder into Crypto (case-sensitive)
+        Python3.5\Lib\site-packages\crypto --> Python3.5\Lib\site-packages\Crypto
+
+    Run the script:
+        python EncryptMsg.py
+"""
+
 
 __author__ = "DC"
-__version__ = "0.1"
+__version__ = "0.2"
+
 
 import pickle
 from base64 import b64encode
 from base64 import b64decode
-# need pycrypto package
-# For Windows, when you install pycrypto you must rename the crypto folder into Crypto (case-sensitive)
-# Python3.5\Lib\site-packages\crypto --> Python3.5\Lib\site-packages\Crypto
+
 try:
     from Crypto.Cipher import AES
     from Crypto.Hash import SHA256
@@ -18,7 +30,7 @@ except Exception as error:
     exit()
 
 
-class colors:
+class Colors(object):
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -27,8 +39,11 @@ class colors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    ITALIC="\033[3m"
+    ITALIC = "\033[3m"
 
+
+#################################################################################################
+# Encrypt function
 def encrypt(key, msg):
     IV = Random.new().read(16)  # AES reads 16 byte blocks
     encryptor = AES.new(key, AES.MODE_CBC, IV)
@@ -42,57 +57,72 @@ def encrypt(key, msg):
         print("Error writing IV to file: ", error)
         exit()
 
-    if len(msg) %16 !=0:
+    if len(msg) % 16 != 0:
         # We need to pad to fill the 16 byte block
-        while (len(msg)%16 !=0):
+        while len(msg) % 16 != 0:
             msg += "^"
 
-    outputMsg = encryptor.encrypt(msg)
-    print("Encrypted message: ", outputMsg)
+    output_msg = encryptor.encrypt(msg)
+    print("Encrypted message: ", output_msg)
 
-    outputMsgB64 = b64encode(outputMsg)
-    print("b64 encodes message: ", outputMsgB64)
+    output_msg_b64 = b64encode(output_msg)
+    print("b64 encodes message: ", output_msg_b64)
     print("IV: ", IV)
 
+
+#################################################################################################
+# Decrypt function
 def decrypt(key, msg, IV):
-    encryptedMsg = b64decode(msg)
-    #print(encryptedMsg)
+    encrypted_msg = b64decode(msg)
+    decrypt_IV = None
+    #print(encrypted_msg)
 
     try:
         with open(IV, 'rb') as f:
-            decryptIV = pickle.load(f)
+            decrypt_IV = pickle.load(f)
             f.close()
-    except (Exception, IOError) as error:
-        print("Error on reading IV from file: ", error)
+    except (Exception, IOError) as err:
+        print("Error on reading IV from file: ", err)
         exit()
 
     #print(decryptIV)
-    decryptor = AES.new(key, AES.MODE_CBC, decryptIV)
-    decryptedMsg = decryptor.decrypt(encryptedMsg)
-    decryptedStrMsg = decryptedMsg.decode('utf-8').replace("^", "")
-    print("Decoded message: " + "'" + colors.BOLD + decryptedStrMsg + colors.ENDC + "'")
+    decryptor = AES.new(key, AES.MODE_CBC, decrypt_IV)
+    decrypted_msg = decryptor.decrypt(encrypted_msg)
+    decrypted_str_msg = decrypted_msg.decode('utf-8').replace("^", "")
+    print("Decoded message: " + "'" + Colors.BOLD + decrypted_str_msg + Colors.ENDC + "'")
 
-def getKey(password):
+
+#################################################################################################
+# Key function
+def get_key(password):
     hasher = SHA256.new(password.encode('utf-8'))
+
     #print(hasher.digest())
     return hasher.digest()
 
+
+#################################################################################################
+# main() function
 def main():
     choice = input("(E)ncrypt/(D)ecrypt?: ")
 
     if choice == 'E':
         msg = input("Message to encrypt: ")
         password = input("Key: ")
-        encrypt(getKey(password), msg)
+        encrypt(get_key(password), msg)
         print("Done.")
     elif choice == 'D':
         msg = input("Message to decrypt: ")
         password = input("Key: ")
         IV = input("IV location: ")
-        decrypt(getKey(password), msg, IV)
+        decrypt(get_key(password), msg, IV)
         print("Done.")
     else:
         print("No option selected, closing...")
 
+
+#################################################################################################
+# Standard boilerplate to call the main() function to begin the program.
+# This only runs if the module was *not* imported.
 if __name__ == '__main__':
     main()
